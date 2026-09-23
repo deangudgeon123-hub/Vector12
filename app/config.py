@@ -8,6 +8,8 @@ class Settings(BaseSettings):
     environment: str = "production"
     supabase_url: str = ""
     supabase_publishable_key: str = ""
+    openai_api_key: str = ""
+    openai_model: str = "gpt-5.6-terra"
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -18,6 +20,10 @@ class Settings(BaseSettings):
     @property
     def supabase_configured(self) -> bool:
         return bool(self.supabase_url and self.supabase_publishable_key)
+
+    @property
+    def openai_configured(self) -> bool:
+        return bool(self.openai_api_key)
 
 
 @lru_cache

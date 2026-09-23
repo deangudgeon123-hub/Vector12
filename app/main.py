@@ -1,15 +1,18 @@
 from fastapi import FastAPI, HTTPException
 
 from app.config import get_settings
+from app.eligibility.router import router as eligibility_router
 from app.supabase_client import get_supabase_client
 
 settings = get_settings()
 
 app = FastAPI(
     title=settings.app_name,
-    version="0.1.0",
+    version="0.2.0",
     description="Vector12 clinical-trial eligibility matching API.",
 )
+
+app.include_router(eligibility_router)
 
 
 @app.get("/")
@@ -37,11 +40,12 @@ def ready() -> dict[str, str]:
             detail="Supabase configuration is missing",
         )
 
-    # Client construction validates the configured URL/key shape without
-    # performing a patient-data query.
     get_supabase_client()
 
     return {
         "status": "ready",
         "supabase": "configured",
+        "compiler": (
+            "configured" if settings.openai_configured else "not_configured"
+        ),
     }
