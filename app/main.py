@@ -3,16 +3,18 @@ from fastapi import FastAPI, HTTPException
 from app.config import get_settings
 from app.eligibility.router import router as eligibility_router
 from app.supabase_client import get_supabase_client
+from app.trials.router import router as trials_router
 
 settings = get_settings()
 
 app = FastAPI(
     title=settings.app_name,
-    version="0.2.0",
+    version="0.3.0",
     description="Vector12 clinical-trial eligibility matching API.",
 )
 
 app.include_router(eligibility_router)
+app.include_router(trials_router)
 
 
 @app.get("/")
