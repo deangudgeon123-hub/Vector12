@@ -140,32 +140,18 @@ class OpenAIEligibilityCompiler:
         source_id: str,
         criteria_text: str,
     ) -> CompiledEligibilityRuleSet:
-        response = self.client.responses.create(
+        response = self.client.responses.parse(
             model=self.model,
             instructions=COMPILER_INSTRUCTIONS,
             input=criteria_text,
-            text={
-                "format": {
-                    "type": "json_schema",
-                    "name": "vector12_eligibility_rules",
-                    "description": (
-                        "A strict machine-readable translation of clinical "
-                        "trial eligibility criteria."
-                    ),
-                    "schema": compiler_json_schema(),
-                    "strict": True,
-                }
-            },
+            text_format=EligibilityCompilerOutput,
         )
 
-        if not response.output_text:
+        output = response.output_parsed
+        if output is None:
             raise CompilerValidationError(
-                "OpenAI returned no structured eligibility output"
+                "OpenAI returned no parsed eligibility output"
             )
-
-        output = EligibilityCompilerOutput.model_validate_json(
-            response.output_text
-        )
 
         return finalise_compilation(
             source_id=source_id,
